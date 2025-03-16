@@ -1,43 +1,47 @@
-// controllers/userController.js
-const User = require('../models/User');
+const User = require("../models/User");
 
+// Get user profile
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password"); // Exclude password
+        if (!user) return res.status(404).json({ message: "User not found" });
 
-
-// controllers/userController.js
-exports.getProfile = (req, res) => {
-  // Your logic here for fetching a profile
-  res.send("User profile data"); // Example response
+        res.json(user);
+    } catch (err) {
+        console.error("Error fetching profile:", err);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
-exports.updateProfile = async (req, res) => {
-  const { userId } = req.user; // Assuming you have userId in req.user after authentication
-  const { bio, profilePhoto, coverPhoto } = req.body;
+// Update user profile
+const updateProfile = async (req, res) => {
+    try {
+        const { username, email, bio, socialHandles } = req.body;
+        let updateData = { username, email, bio };
 
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { bio, profilePhoto, coverPhoto },
-      { new: true }
-    );
-    res.json({ message: "Profile updated successfully", user: updatedUser });
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+        if (socialHandles) {
+            updateData.socialHandles = JSON.parse(socialHandles);
+        }
+
+        if (req.files?.profilePicture) {
+            updateData.profilePicture = `/uploads/${req.files.profilePicture[0].filename}`;
+        }
+        if (req.files?.coverPhoto) {
+            updateData.coverPhoto = `/uploads/${req.files.coverPhoto[0].filename}`;
+        }
+        if (req.files?.portfolio) {
+            updateData.portfolio = `/uploads/${req.files.portfolio[0].filename}`;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, { new: true });
+
+        if (!updatedUser) return res.status(404).json({ message: "User not found" });
+
+        res.json(updatedUser);
+    } catch (err) {
+        console.error("Profile update error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
-// Friend request handling
-exports.sendFriendRequest = async (req, res) => {
-  const { userId } = req.user; // User sending the request
-  const { friendId } = req.body; // User to add as a friend
-
-  try {
-    const user = await User.findById(userId);
-    user.friends.push(friendId); // Assuming friends is an array in your User model
-    await user.save();
-    res.json({ message: "Friend request sent" });
-  } catch (error) {
-    console.error("Error sending friend request:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+module.exports = { getUserProfile, updateProfile };

@@ -1,34 +1,21 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // Include if using password authentication
-  profilePhoto: { type: String, default: '' }, // URL or path to profile photo
-  coverPhoto: { type: String, default: '' },   // URL or path to cover photo
-  bio: { type: String, maxLength: 500 },       // Short bio
-  category: {
-    type: String,
-    enum: ['videographer', 'artist', 'photographer'], // Category options
-    required: true,
-  },
-  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Friend connections
-  notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }],
-});
+const UserSchema = new mongoose.Schema(
+    {
+        username: { type: String, required: true, unique: true },
+        email: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+        profilePicture: { type: String, default: "/uploads/default.png" },
+        coverPhoto: { type: String, default: "" },
+        bio: { type: String, default: "" },
+        socialHandles: { type: Object, default: {} },
 
-// Hash password before saving
-// Middleware to hash password before saving
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-  });
+        // ✅ Friend System
+        friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Confirmed Friends
+        friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Incoming Requests
+        sentRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // ✅ Track Sent Requests
+    },
+    { timestamps: true }
+);
 
-// Method to compare password (optional for signup but useful for login)
-userSchema.methods.comparePassword = async function(password) {
-    return await bcrypt.compare(password, this.password);
-  };
-
-const User = mongoose.model('User', userSchema);
-module.exports = User;
+module.exports = mongoose.model("User", UserSchema);
