@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryShare</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="../images/Logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script src="/socket.io/socket.io.js"></script> <!-- Load Socket.io client -->
+</head>
+<body class="font-sans text-gray-800 flex flex-col  min-h-screen">
+       <!-- Navbar -->
+       <nav class="bg-gray-950 shadow-lg p-5 fixed top-0 left-0 w-full z-50 transition-all duration-300 ">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <img src="../images/Logo.png" alt="StoryShare Logo" class="h-16 w-auto">
+
+            <!-- Desktop Navigation -->
+            <ul class="hidden md:flex space-x-10 text-primaryColor font-medium tracking-wide">
+                <li><a href="/index.html" class="nav-link hover:text-white transition">Home</a></li>
+                <li><a href="/masterclasses.html" class="nav-link hover:text-white transition">Masterclass</a></li>
+                <li><a href="/opportunity.html" class="nav-link hover:text-white transition">Opportunities</a></li>
+                <li><a href="/community.html" class="nav-link hover:text-white transition">Community</a></li>
+                <li><a href="/blog.html" class="nav-link hover:text-white transition">Blog</a></li>
+            </ul>
+
+            <!-- Account Options (Desktop) -->
+            <div id="accountDropdown" class="hidden md:flex relative">
+                <button id="accountBtn" class="text-white hover:text-gray-300 flex items-center transition focus:outline-none">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </button>
+                <!-- Dropdown (Desktop) -->
+                <div id="dropdownMenu" class="absolute right-0 mt-3 bg-white shadow-lg rounded-lg w-44 border border-gray-200 hidden">
+                    <!-- Dynamic Content Based on Authentication State -->
+                    <div id="authOptions">
+                        <!-- Options for logged-out users -->
+                        <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                        </a>
+                        <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleSidebar()" class="md:hidden text-white focus:outline-none transition duration-300">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Sidebar -->
+        <div id="sidebar" class="fixed inset-0 bg-gradient-to-b from-gray-900 to-gray-800 p-6 z-50 hidden flex flex-col space-y-6 shadow-2xl transform -translate-x-full transition-transform duration-300 rounded-r-xl">
+            <button onclick="toggleSidebar()" class="text-white self-end">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <ul class="flex flex-col space-y-6 mt-6 text-gray-200 font-medium">
+                <li><a href="/index.html" class="sidebar-link hover:text-blue-400 transition">Home</a></li>
+                <li><a href="/masterclasses.html" class="sidebar-link hover:text-blue-400 transition">Masterclass</a></li>
+                <li><a href="/opportunity.html" class="sidebar-link hover:text-blue-400 transition">Opportunities</a></li>
+                <li><a href="/community.html" class="sidebar-link hover:text-blue-400 transition">Community</a></li>
+                <li><a href="/blog.html" class="sidebar-link hover:text-blue-400 transition">Blog</a></li>
+            </ul>
+
+            <!-- Account Options (Mobile) -->
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-gray-400 uppercase text-sm mb-3">Account</p>
+                <!-- Dynamic Content Based on Authentication State -->
+                <div id="authOptionsMobile">
+                    <!-- Options for logged-out users -->
+                    <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </a>
+                    <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                        <i class="fas fa-user-plus mr-2"></i> Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+  
+    
+    
+
+    
+    <div class="max-w-6xl mx-auto mt-20 pt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Left Column: Create Post & Posts Feed (larger Column) -->
+        <div class="md:col-span-2">
+            <!-- Create Post Section -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📢 Share Something</h3>
+                <textarea id="postContent" class="w-full p-2 border rounded" placeholder="What's on your mind?"></textarea>
+                <button id="postButton" onclick="createPost()" class="bg-blue-500 text-white px-4 py-2 rounded">Post</button>
+
+            </div>
+    
+            <!-- Posts Feed -->
+            <div id="postsContainer" class="mt-6 space-y-6">
+                <!-- Posts will be dynamically inserted here -->
+            </div>
+        </div>
+    
+        <!-- Right Column: Community Members (smaller Column) -->
+        <div class="md:col-span-1 ">
+
+           
+
+            <!-- Community Box -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-6xl">
+                <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">🎬 Filmmaker Community</h2>
+
+                <div class="mt-5 justify-center items-center place-items-center">
+                    <h2 class="text-lg font-semibold text-primaryColor ">Pending Friend Requests</h2>
+                    <div id="pendingRequestsContainer" class="space-y-3 mt-3"></div>
+                </div>
+
+                <div id="friendsList" class="space-y-3 mt-4">Friends</div>
+                
+                <!-- User Profiles Grid -->
+                <div id="communityContainer" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-8 justify-center items-center place-items-center">
+                    <!-- User profiles will be inserted dynamically -->
+                </div>
+        
+                <!-- "See All" Button -->
+                <div class="flex justify-center mt-6">
+                    <button id="seeAllBtn" class="bg-primaryColor text-white px-5 py-2 rounded-full text-sm font-medium shadow-md hover:bg-gray-700 transition-all transform hover:scale-105">
+                        👀 See All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <!-- Notification Container -->
+<div id="notificationContainer" class="fixed top-4 right-4 space-y-2 z-50"></div>
+
+
+
+            <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-6 mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 px-6 text-center md:text-left">
+            <!-- Brand Name -->
+            <p class="text-xs font-normal text-gray-300">&copy; 2024 Filmmaker Community. All rights reserved.</p>
+
+            <!-- Social Media Links -->
+            <div class="flex space-x-6">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-facebook-f text-lg"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-twitter text-lg"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-instagram text-lg"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-linkedin-in text-lg"></i>
+                </a>
+            </div>
+
+            <!-- Additional Info -->
+            <p class="text-sm text-gray-500">Built with ❤️ by filmmakers, for filmmakers.</p>
+        </div>
+    </footer>
+        
+    <script>
+    
+  
+        // Check if the user is logged in
+        function isLoggedIn() {
+            return localStorage.getItem("token") !== null;
+        }
+
+        // Update the account dropdown based on authentication state
+        function updateAuthOptions() {
+            const authOptions = document.getElementById("authOptions");
+            const authOptionsMobile = document.getElementById("authOptionsMobile");
+
+            if (isLoggedIn()) {
+                // User is logged in
+                authOptions.innerHTML = `
+                    <a href="/profile.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                        <i class="fas fa-user-circle mr-2"></i> Profile
+                    </a>
+                    <button id="logoutDropdownBtn" class="w-full text-left px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                `;
+
+                authOptionsMobile.innerHTML = `
+                    <a href="/profile.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                        <i class="fas fa-user-circle mr-2"></i> Profile
+                    </a>
+                    <button id="logoutSidebarBtn" class="w-full text-left px-4 py-3 text-gray-200 hover:bg-red-700 rounded-lg font-medium transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                `;
+            } else {
+                // User is not logged in
+                authOptions.innerHTML = `
+                    <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </a>
+                    <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                        <i class="fas fa-user-plus mr-2"></i> Sign Up
+                    </a>
+                `;
+
+                authOptionsMobile.innerHTML = `
+                    <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </a>
+                    <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                        <i class="fas fa-user-plus mr-2"></i> Sign Up
+                    </a>
+                `;
+            }
+        }
+
+        // Logout functionality
+        function handleLogout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/auth.html";
+        }
+
+        // Initialize the page
+        document.addEventListener("DOMContentLoaded", () => {
+            const accountBtn = document.getElementById("accountBtn");
+            const dropdownMenu = document.getElementById("dropdownMenu");
+
+            // Update the account dropdown options
+            updateAuthOptions();
+
+            // Account Dropdown Toggle
+            if (accountBtn && dropdownMenu) {
+                accountBtn.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    dropdownMenu.classList.toggle("hidden");
+                });
+
+                document.addEventListener("click", (event) => {
+                    if (!accountBtn.contains(event.target)) {
+                        dropdownMenu.classList.add("hidden");
+                    }
+                });
+            }
+
+            // Logout functionality
+            document.addEventListener("click", (event) => {
+                if (event.target.id === "logoutDropdownBtn" || event.target.id === "logoutSidebarBtn") {
+                    handleLogout();
+                }
+            });
+        });
+
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("-translate-x-full");
+            sidebar.classList.toggle("hidden");
+        }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    checkUserData();
+    loadPosts(); // ✅ Public posts
+});
+
+// ✅ Check if user is logged in
+function checkUserData() {
+    const userString = localStorage.getItem("user");
+    console.log("📌 Retrieved raw user data:", userString);
+
+    if (!userString) {
+        console.warn("⛔ No user data found. Disabling post input.");
+        disablePosting();
+        return;
+    }
+
+    try {
+        const user = JSON.parse(userString);
+        if (user && user.id && user.username) {
+            console.log("✅ User logged in:", user);
+            enablePosting();
+        } else {
+            console.warn("⛔ Invalid user data format. Disabling post input.");
+            disablePosting();
+        }
+    } catch (error) {
+        console.error("❌ Error parsing user data:", error);
+        disablePosting();
+    }
+}
+
+// ✅ Enable/Disable Post Input Based on Login Status
+function enablePosting() {
+    const postInput = document.getElementById("postContent");
+    const postButton = document.getElementById("postButton");
+    if (postInput && postButton) {
+        postInput.placeholder = "What's on your mind?";
+        postInput.disabled = false;
+        postButton.disabled = false;
+        postButton.classList.remove("opacity-50", "cursor-not-allowed");
+        console.log("✅ Posting enabled.");
+    }
+}
+
+function disablePosting() {
+    const postInput = document.getElementById("postContent");
+    const postButton = document.getElementById("postButton");
+    if (postInput && postButton) {
+        postInput.placeholder = "Log in to share your thoughts...";
+        postInput.disabled = true;
+        postButton.disabled = true;
+        postButton.classList.add("opacity-50", "cursor-not-allowed");
+        console.warn("⛔ Posting disabled.");
+    }
+}
+
+// ✅ Create a new post (Logged-in users only)
+function createPost() {
+    const postContent = document.getElementById("postContent").value.trim();
+    if (!postContent) {
+        alert("⛔ Post content cannot be empty.");
+        return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id || !user.username) {
+        alert("You must be logged in to post.");
+        return;
+    }
+
+    const newPost = {
+        id: Date.now(),
+        content: postContent,
+        timestamp: new Date().toLocaleString(),
+        likes: 0,
+        comments: [],
+        userId: user.id,
+        username: user.username,
+        profilePicture: user.profilePic || "/assets/default-avatar.png"
+    };
+
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.unshift(newPost);
+    localStorage.setItem("posts", JSON.stringify(posts));
+
+    document.getElementById("postContent").value = "";
+    loadPosts();
+    console.log("✅ Post created:", newPost);
+}
+
+// ✅ Load all posts (Public)
+function loadPosts() {
+    const postsContainer = document.getElementById("postsContainer");
+    postsContainer.innerHTML = "";
+
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+    if (posts.length === 0) {
+        postsContainer.innerHTML = `<p class="text-gray-500 text-sm text-center">No posts yet. Share something!</p>`;
+        return;
+    }
+
+    posts.forEach(post => {
+        const postElement = document.createElement("div");
+        postElement.classList.add("bg-white", "p-4", "rounded-lg", "shadow-md", "mb-4");
+
+        postElement.innerHTML = `
+            <div class="flex items-center space-x-3 mb-3">
+                <img src="${post.profilePicture}" onerror="this.src='/assets/default-avatar.png';" class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="font-semibold text-gray-800">${post.username}</p>
+                    <small class="text-gray-500">${post.timestamp}</small>
+                </div>
+            </div>
+            <p class="text-gray-900 text-sm mb-2">${post.content}</p>
+            <div class="flex items-center justify-between mt-2">
+                <button onclick="likePost(${post.id})" class="text-blue-500 text-xs hover:text-blue-700" 
+                    ${!isLoggedIn() ? "disabled class='opacity-50 cursor-not-allowed'" : ""}>
+                    👍 Like (<span id="like-count-${post.id}">${post.likes}</span>)
+                </button>
+            </div>
+            <div class="mt-4">
+                <input id="comment-input-${post.id}" type="text" placeholder="Write a comment..." 
+                    class="w-full p-2 border border-gray-300 rounded text-sm" ${!isLoggedIn() ? "disabled" : ""}>
+                <button onclick="addComment(${post.id})" class="mt-1 bg-gray-700 text-white px-3 py-1 rounded text-xs"
+                    ${!isLoggedIn() ? "disabled class='opacity-50 cursor-not-allowed'" : ""}>
+                    💬 Comment
+                </button>
+            </div>
+            <div id="comments-${post.id}" class="mt-3 text-sm text-gray-700"></div>
+        `;
+
+        postsContainer.appendChild(postElement);
+        loadComments(post.id, post.comments);
+    });
+
+    console.log("✅ Public posts loaded:", posts);
+}
+
+// ✅ Check if a user is logged in
+function isLoggedIn() {
+    return localStorage.getItem("user") !== null;
+}
+
+// ✅ Like a post (Only logged-in users)
+function likePost(postId) {
+    if (!isLoggedIn()) {
+        alert("You must be logged in to like a post.");
+        return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) return;
+
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let postIndex = posts.findIndex(post => post.id === postId);
+
+    if (postIndex === -1) return;
+
+    // ✅ Retrieve liked posts for the user
+    let likedPosts = JSON.parse(localStorage.getItem(`likedPosts_${user.id}`)) || [];
+
+    // ✅ Check if the user already liked this post
+    if (likedPosts.includes(postId)) {
+        alert("⛔ You have already liked this post.");
+        return;
+    }
+
+    // ✅ Update post likes
+    posts[postIndex].likes += 1;
+    localStorage.setItem("posts", JSON.stringify(posts));
+
+    // ✅ Save this post as liked by the user
+    likedPosts.push(postId);
+    localStorage.setItem(`likedPosts_${user.id}`, JSON.stringify(likedPosts));
+
+    // ✅ Update UI
+    document.getElementById(`like-count-${postId}`).textContent = posts[postIndex].likes;
+    console.log(`👍 User ${user.username} liked post ${postId}. Total Likes: ${posts[postIndex].likes}`);
+}
+
+// ✅ Add a comment (Only logged-in users)
+function addComment(postId) {
+    if (!isLoggedIn()) {
+        alert("You must be logged in to comment.");
+        return;
+    }
+
+    const commentInput = document.getElementById(`comment-input-${postId}`);
+    const commentText = commentInput.value.trim();
+    if (!commentText) return;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let postIndex = posts.findIndex(post => post.id === postId);
+
+    if (postIndex !== -1) {
+        const newComment = {
+            username: user.username,
+            text: commentText,
+            profilePicture: user.profilePic || "/assets/default-avatar.png"
+        };
+
+        posts[postIndex].comments.push(newComment);
+        localStorage.setItem("posts", JSON.stringify(posts));
+
+        commentInput.value = "";
+        loadComments(postId, posts[postIndex].comments);
+        console.log(`💬 Comment added to post ${postId}:`, newComment);
+    }
+}
+
+// ✅ Load comments for a post
+function loadComments(postId, comments) {
+    const commentsContainer = document.getElementById(`comments-${postId}`);
+    commentsContainer.innerHTML = "";
+
+    if (!comments || comments.length === 0) {
+        commentsContainer.innerHTML = `<p class="text-gray-500 text-xs">No comments yet.</p>`;
+        return;
+    }
+
+    comments.forEach(comment => {
+        const commentElement = document.createElement("div");
+        commentElement.classList.add("flex", "items-center", "mt-1");
+        commentElement.innerHTML = `
+            <img src="${comment.profilePicture || '/assets/default-avatar.png'}" 
+                class="w-6 h-6 rounded-full mr-2">
+            <p class="text-gray-800 text-xs"><strong>${comment.username}:</strong> ${comment.text}</p>
+        `;
+        commentsContainer.appendChild(commentElement);
+    });
+}
+
+// 🚪 Logout
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/auth.html";
+}
+
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const [usersResponse, friendsResponse] = await Promise.all([
+            fetch("http://localhost:5000/api/user/profiles", { headers: { "Authorization": `Bearer ${token}` } }),
+            fetch("http://localhost:5000/api/friends/list", { headers: { "Authorization": `Bearer ${token}` } })
+        ]);
+
+        const users = await usersResponse.json();
+        const friends = await friendsResponse.json(); // List of friends
+
+        const communityContainer = document.getElementById("communityContainer");
+        communityContainer.innerHTML = ""; // Clear previous content
+
+        const seeAllBtn = document.getElementById("seeAllBtn");
+        let shownUsers = 3; // Initially show only 3 users
+
+        // 🆕 Add a section title for "People You May Know"
+        communityContainer.innerHTML += `
+            <h2 class="text-lg font-semibold text-gray-800 mt-6">👥 People You May Know</h2>
+        `;
+
+        users.slice(0, shownUsers).forEach(user => {
+            const isFriend = friends.some(friend => friend._id === user._id);
+            if (!isFriend) { // ✅ Hide friends from this section
+                appendUserCard(user, communityContainer, isFriend);
+            }
+        });
+
+        seeAllBtn.addEventListener("click", () => {
+            users.slice(shownUsers).forEach(user => {
+                const isFriend = friends.some(friend => friend._id === user._id);
+                if (!isFriend) { // ✅ Hide friends from this section
+                    appendUserCard(user, communityContainer, isFriend);
+                }
+            });
+            seeAllBtn.style.display = "none";
+        });
+
+        loadFriendsList(friends); // ✅ Show Friends List
+
+    } catch (error) {
+        console.error("Error fetching users or friends:", error);
+    }
+});
+
+function updateFriendRequestButtons() {
+    document.querySelectorAll("[id^='friend-btn-']").forEach((button) => {
+        const recipientId = button.id.replace("friend-btn-", "");
+        const requestStatus = localStorage.getItem(`friend-request-${recipientId}`);
+
+        if (requestStatus === "sent") {
+            button.innerText = "Pending...";
+            button.disabled = true;
+            button.classList.replace("bg-primaryColor", "bg-yellow-500");
+        } else if (requestStatus === "friends") {
+            button.innerText = "Friends";
+            button.disabled = true;
+            button.classList.replace("bg-primaryColor", "bg-green-500");
+            document.getElementById(`user-card-${recipientId}`)?.remove(); // ✅ Hide user once they become friends
+        }
+    });
+}
+
+function appendUserCard(user, container, isFriend = false) {
+    const loggedInUserId = localStorage.getItem("userId"); // Retrieve logged-in user ID
+
+    const userCard = document.createElement("div");
+    userCard.classList.add(
+        "bg-white", "shadow-lg", "rounded-xl", "overflow-hidden",
+        "w-56", "h-56", "transition", "transform", "hover:scale-105", "hover:shadow-xl",
+        "flex", "flex-col", "justify-between"
+    );
+
+    userCard.innerHTML = `
+        <div class="relative w-full h-20 bg-gray-200">
+            <img src="${user.profilePicture || 'images/default-avatar.png'}" 
+                alt="Profile Picture" class="absolute inset-0 w-full h-full object-cover rounded-t-xl">
+        </div>
+        <div class="p-3 flex-1 flex flex-col items-center">
+            <h3 class="text-sm font-semibold text-gray-900">${user.username || "Unknown User"}</h3>
+            <p class="text-gray-600 text-xs text-center line-clamp-2">
+                ${user.occupation?.trim() ? user.occupation : "No occupation listed"}
+            </p>
+        </div>
+        <div class="p-3">
+            ${
+                user._id === loggedInUserId 
+                    ? `<button disabled class="w-full px-4 py-1.5 bg-gray-400 text-white text-xs font-medium rounded-lg shadow-md">
+                        🚫 Can't Friend Yourself
+                    </button>`
+                    : isFriend 
+                        ? `<button disabled class="w-full px-4 py-1.5 bg-green-500 text-white text-xs font-medium rounded-lg shadow-md">
+                            ✅ Friends
+                        </button>`
+                        : `<button id="friend-btn-${user._id}" onclick="sendFriendRequest('${user._id}')"
+                            class="w-full px-4 py-1.5 bg-primaryColor text-white text-xs font-medium rounded-lg shadow-md hover:bg-gray-800 transition transform hover:scale-105">
+                            ➕ Add Friend
+                        </button>`
+            }
+        </div>
+    `;
+
+    container.appendChild(userCard);
+}
+
+
+async function sendFriendRequest(recipientId) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error("❌ No token found! User is not logged in.");
+        alert("You must be logged in to send friend requests.");
+        return;
+    }
+
+    if (!recipientId) {
+        console.error("❌ recipientId is missing! Aborting request.");
+        alert("Error: recipientId is missing.");
+        return;
+    }
+
+    console.log(`📩 Sending friend request to: ${recipientId}`);
+
+    const requestBody = { recipientId };
+    console.log("🔎 Request Body:", requestBody); // ✅ Check request payload
+
+    try {
+        const response = await fetch("http://localhost:5000/api/friends/send-friend-request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        const data = await response.json();
+        console.log("🛠 Response:", response.status, data);
+
+        if (!response.ok) {
+            alert(`❌ Error: ${data.message || "Failed to send friend request."}`);
+            return;
+        }
+
+        alert("✅ Friend request sent successfully!");
+        localStorage.setItem(`friend-request-${recipientId}`, "sent");
+        updateFriendRequestButtons();
+
+    } catch (error) {
+        console.error("🚨 Error sending friend request:", error);
+        alert("❌ Failed to send friend request.");
+    }
+}
+
+function loadFriendsList() {
+    const friendsListElement = document.getElementById("friendsList");
+
+    if (!friendsListElement) {
+        console.error("❌ Error: friendsList element not found in the DOM.");
+        return;
+    }
+
+    fetch("http://localhost:5000/api/friends/list", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!Array.isArray(data)) {
+            console.error("❌ Error: Invalid friends list data:", data);
+            return;
+        }
+
+        // Create the title
+        let friendsTitle = `
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">👥 Friends</h2>
+        `;
+
+        if (data.length === 0) {
+            friendsListElement.innerHTML = `
+                ${friendsTitle}
+                <p class="text-gray-500 text-sm text-center py-4">
+                    🤷 No friends yet. Start connecting!
+                </p>`;
+            return;
+        }
+
+        friendsListElement.innerHTML = friendsTitle + data.map(friend => `
+            <div class="friend flex items-center gap-4 p-3 bg-white shadow-md rounded-lg transition hover:shadow-lg hover:bg-gray-100">
+                <img src="${friend.profilePicture || 'images/default-avatar.png'}" 
+                     alt="${friend.username}" class="w-10 h-10 rounded-full border border-gray-300 shadow-sm">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-800">${friend.username}</p>
+                    <p class="text-xs text-gray-500">${friend.occupation || "No occupation listed"}</p>
+                </div>
+                <button class="text-xs text-red-500 font-semibold hover:text-red-700 transition" 
+                        onclick="removeFriend('${friend._id}', this)">
+                    ❌ Remove
+                </button>
+            </div>
+        `).join("");
+    })
+    .catch(error => {
+        console.error("Error fetching users or friends:", error);
+    });
+}
+
+// ✅ Function to remove a friend
+function removeFriend(friendId) {
+    fetch(`http://localhost:5000/api/friends/remove/${friendId}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`, 
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to remove friend.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("✅ Friend removed successfully:", data);
+        loadFriendsList(); // Refresh the list
+    })
+    .catch(error => {
+        console.error("❌ Error removing friend:", error);
+    });
+}
+
+
+
+
+// ✅ Run only when DOM is fully loaded
+document.addEventListener("DOMContentLoaded", function () {
+    if (document.getElementById("friendsList")) {
+        loadFriendsList();
+    }
+});
+
+async function loadPendingRequests() { 
+    const token = localStorage.getItem("token"); 
+    if (!token) return;
+
+    try {
+        const response = await fetch("http://localhost:5000/api/friends/pending-requests", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch pending requests.");
+        const pendingRequests = await response.json();
+
+        console.log("🔎 Pending Requests:", pendingRequests); // ✅ Debugging line
+
+        const pendingContainer = document.getElementById("pendingRequestsContainer");
+        pendingContainer.innerHTML = pendingRequests.length === 0 ? 
+            '<p class="text-xs pb-12 ">No pending friend requests.</p>' : "";
+
+        pendingRequests.forEach((request) => {
+            console.log("📌 Friend Request ID:", request._id); // ✅ Debugging line
+            pendingContainer.innerHTML += `
+                <div class="flex items-center space-x-3 p-3 bg-white shadow-md rounded-lg mb-10">
+                    <img src="${request.senderId?.profilePicture || 'images/default-avatar.png'}" 
+                        class="w-8 h-8 rounded-full border border-gray-300 shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-gray-700 text-sm">${request.senderId?.username || "Unknown User"}</span>
+                        <div class="flex gap-2 mt-1">
+                            <button class="bg-green-500 text-white text-xs px-3 py-1 rounded shadow hover:bg-green-600"
+                                onclick="acceptFriendRequest('${request._id}')">✅ Accept</button>
+                            <button class="bg-red-500 text-white text-xs px-3 py-1 rounded shadow hover:bg-red-600"
+                                onclick="rejectFriendRequest('${request._id}')">❌ Reject</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+    } catch (error) {
+        console.error("Error loading pending requests:", error);
+    }
+}
+
+
+async function acceptFriendRequest(requestId) {
+    if (!requestId) {
+        console.error("❌ requestId is undefined!"); // Debugging line
+        alert("Error: Invalid friend request.");
+        return;
+    }
+
+    console.log("✅ Accepting friend request with ID:", requestId); // Debugging line
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/friends/accept/${requestId}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+        console.log("🛠 Response Data:", data);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to accept friend request.");
+        }
+
+        alert("✅ Friend request accepted!");
+        loadPendingRequests(); 
+        loadFriendsList();
+
+    } catch (error) {
+        console.error("Error accepting friend request:", error);
+    }
+}
+
+async function rejectFriendRequest(requestId) {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/friends/reject/${requestId}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) throw new Error("Failed to reject friend request.");
+
+        alert("❌ Friend request rejected!");
+        loadPendingRequests(); // Refresh the pending requests list
+
+    } catch (error) {
+        console.error("Error rejecting friend request:", error);
+    }
+}
+
+
+
+
+// ✅ Make sure this is at the **bottom** of your script
+document.addEventListener("DOMContentLoaded", loadPendingRequests);
+
+
+    </script>
+</body>
+</html>

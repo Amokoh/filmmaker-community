@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryShare</title>
+    <link rel="icon" href="../images/Logo.png" type="image/png">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+   
+</head>
+<body class="font-sans text-gray-800 flex flex-col min-h-screen"">
+    <!-- Navbar -->
+        <!-- Navbar -->
+        <nav class="bg-gray-950 shadow-lg p-5 fixed top-0 left-0 w-full z-50 transition-all duration-300">
+            <div class="container mx-auto flex justify-between items-center">
+                <!-- Logo -->
+                <img src="../images/Logo.png" alt="StoryShare Logo" class="h-16 w-auto">
+    
+                <!-- Desktop Navigation -->
+                <ul class="hidden md:flex space-x-10 text-primaryColor font-medium tracking-wide">
+                    <li><a href="/index.html" class="nav-link hover:text-white transition">Home</a></li>
+                    <li><a href="/masterclasses.html" class="nav-link hover:text-white transition">Masterclass</a></li>
+                    <li><a href="/opportunity.html" class="nav-link hover:text-white transition">Opportunities</a></li>
+                    <li><a href="/community.html" class="nav-link hover:text-white transition">Community</a></li>
+                    <li><a href="/blog.html" class="nav-link hover:text-white transition">Blog</a></li>
+                </ul>
+    
+                <!-- Account Options (Desktop) -->
+                <div id="accountDropdown" class="hidden md:flex relative">
+                    <button id="accountBtn" class="text-white hover:text-gray-300 flex items-center transition focus:outline-none">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                    <!-- Dropdown (Desktop) -->
+                    <div id="dropdownMenu" class="absolute right-0 mt-3 bg-white shadow-lg rounded-lg w-44 border border-gray-200 hidden">
+                        <!-- Dynamic Content Based on Authentication State -->
+                        <div id="authOptions">
+                            <!-- Options for logged-out users -->
+                            <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                            </a>
+                            <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                <i class="fas fa-user-plus mr-2"></i> Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleSidebar()" class="md:hidden text-white focus:outline-none transition duration-300">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+    
+            <!-- Mobile Sidebar -->
+            <div id="sidebar" class="fixed inset-0 bg-gradient-to-b from-gray-900 to-gray-800 p-6 z-50 hidden flex flex-col space-y-6 shadow-2xl transform -translate-x-full transition-transform duration-300 rounded-r-xl">
+                <button onclick="toggleSidebar()" class="text-white self-end">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+                <ul class="flex flex-col space-y-6 mt-6 text-gray-200 font-medium">
+                    <li><a href="/index.html" class="sidebar-link hover:text-blue-400 transition">Home</a></li>
+                    <li><a href="/masterclasses.html" class="sidebar-link hover:text-blue-400 transition">Masterclass</a></li>
+                    <li><a href="/opportunity.html" class="sidebar-link hover:text-blue-400 transition">Opportunities</a></li>
+                    <li><a href="/community.html" class="sidebar-link hover:text-blue-400 transition">Community</a></li>
+                    <li><a href="/blog.html" class="sidebar-link hover:text-blue-400 transition">Blog</a></li>
+                </ul>
+    
+                <!-- Account Options (Mobile) -->
+                <div class="border-t border-gray-700 pt-6">
+                    <p class="text-gray-400 uppercase text-sm mb-3">Account</p>
+                    <!-- Dynamic Content Based on Authentication State -->
+                    <div id="authOptionsMobile">
+                        <!-- Options for logged-out users -->
+                        <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                        </a>
+                        <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+
+    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 mt-20 px-6">
+        <div class="w-full max-w-4xl bg-white p-8 shadow-lg rounded-lg">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Edit Profile</h2>
+    
+            <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Username</label>
+                        <input type="text" id="profileUsername" class="w-full px-3 py-2 border rounded-lg" placeholder="Your username">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Email</label>
+                        <input type="email" id="profileEmail" class="w-full px-3 py-2 border rounded-lg" placeholder="Your email">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Bio</label>
+                        <textarea id="profileBio" class="w-full px-3 py-2 border rounded-lg" placeholder="Tell us about yourself"></textarea>
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Social Media Links</label>
+                        <input type="text" id="socialHandles" class="w-full px-3 py-2 border rounded-lg" placeholder='{"twitter": "https://twitter.com/yourhandle"}'>
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Occupation</label>
+                        <select id="occupation" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Select your occupation</option>
+                            <option value="Actor">Actor</option>
+                            <option value="Director">Director</option>
+                            <option value="Producer">Producer</option>
+                            <option value="Singer">Singer</option>
+                            <option value="Special Effects Artist">Special Effects Artist</option>
+                            <option value="Writer">Writer</option>
+                            <option value="Director of Photography">Director of Photography</option>
+                            <option value="Choreographer">Choreographer</option>
+                            <option value="Stylist and Makeup Artist">Stylist and Makeup Artist</option>
+                            <option value="Set Designer">Set Designer</option>
+                            <option value="Set Designer">Photographer</option>
+                            <option value="Set Designer">Videographer</option>
+                            <option value="Set Designer">Concept artist</option>
+                            <option value="Set Designer">Sound engineer</option>
+                            <option value="Set Designer">Sound designer</option>
+                            <option value="Set Designer">Animator</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <!-- Right Column -->
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Profile Picture</label>
+                        <input type="file" id="profilePicture" class="w-full px-3 py-2 border rounded-lg" accept="image/*">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Cover Photo</label>
+                        <input type="file" id="coverPhoto" class="w-full px-3 py-2 border rounded-lg" accept="image/*">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Portfolio (PDF)</label>
+                        <input type="file" id="portfolio" class="w-full px-3 py-2 border rounded-lg" accept="application/pdf">
+                    </div>
+                </div>
+            
+                <!-- Full Width Button -->
+                <div class="col-span-1 md:col-span-2">
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-6 mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 px-6 text-center md:text-left">
+            <!-- Brand Name -->
+            <p class="text-xs font-normal text-gray-300">&copy; 2024 Filmmaker Community. All rights reserved.</p>
+
+            <!-- Social Media Links -->
+            <div class="flex space-x-6">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-facebook-f text-lg"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-twitter text-lg"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-instagram text-lg"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-linkedin-in text-lg"></i>
+                </a>
+            </div>
+
+            <!-- Additional Info -->
+            <p class="text-sm text-gray-500">Built with ❤️ by filmmakers, for filmmakers.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("-translate-x-full");
+            sidebar.classList.toggle("hidden");
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const accountBtn = document.getElementById("accountBtn");
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            const logoutDropdownBtn = document.getElementById("logoutDropdownBtn");
+            const logoutSidebarBtn = document.getElementById("logoutSidebarBtn");
+
+            // Account Dropdown Toggle
+            if (accountBtn && dropdownMenu) {
+                accountBtn.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    dropdownMenu.classList.toggle("hidden");
+                });
+
+                document.addEventListener("click", (event) => {
+                    if (!accountBtn.contains(event.target)) {
+                        dropdownMenu.classList.add("hidden");
+                    }
+                });
+            }
+
+            // Logout functionality
+            function handleLogout() {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/auth.html";
+            }
+
+            if (logoutDropdownBtn) logoutDropdownBtn.addEventListener("click", handleLogout);
+            if (logoutSidebarBtn) logoutSidebarBtn.addEventListener("click", handleLogout);
+        });
+
+
+        document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Unauthorized access. Please log in again.");
+        window.location.href = "/auth.html";
+        return;
+    }
+
+    console.log("Token found:", token);
+
+    try {
+        const response = await fetch("http://localhost:5000/api/user/profile", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+        });
+
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                console.error("Unauthorized: Token might be invalid or expired.");
+                alert("Session expired. Please log in again.");
+                localStorage.removeItem("token");
+                window.location.href = "/auth.html";
+                return;
+            }
+
+            const errorData = await response.json();
+            console.error("Error response from server:", errorData);
+            throw new Error(`Failed to fetch profile. ${errorData.message || "Unknown error"}`);
+        }
+
+        const user = await response.json();
+        console.log("User profile data received:", user);
+
+        // Ensure elements exist before updating them
+        const profilePic = document.getElementById("profile-pic");
+        const coverPhoto = document.getElementById("cover-photo");
+        const usernameField = document.getElementById("profileUsername");
+        const emailField = document.getElementById("profileEmail");
+        const bioField = document.getElementById("profileBio");
+        const socialHandlesField = document.getElementById("socialHandles");
+
+        if (!profilePic) console.warn("⚠️ profile-pic element not found!");
+        if (!coverPhoto) console.warn("⚠️ cover-photo element not found!");
+        if (!usernameField) console.warn("⚠️ profileUsername element not found!");
+        if (!emailField) console.warn("⚠️ profileEmail element not found!");
+        if (!bioField) console.warn("⚠️ profileBio element not found!");
+        if (!socialHandlesField) console.warn("⚠️ socialHandles element not found!");
+
+        if (profilePic) profilePic.src = user.profilePicture || "/uploads/default-profile.jpg";
+        if (coverPhoto) coverPhoto.src = user.coverPhoto || "/uploads/default-cover.jpg";
+        if (usernameField) usernameField.value = user.username || "";
+        if (emailField) emailField.value = user.email || "";
+        if (bioField) bioField.value = user.bio || "";
+        if (socialHandlesField) {
+            socialHandlesField.value = user.socialHandles ? JSON.stringify(user.socialHandles, null, 2) : "";
+        }
+
+    } catch (error) {
+        console.error("Error loading profile:", error);
+        alert("Error loading profile. Please check the console.");
+    }
+});
+
+// Ensure form event listener is only added if form exists
+const profileForm = document.getElementById("profileForm");
+if (profileForm) {
+    profileForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Unauthorized access. Please log in again.");
+            window.location.href = "/auth.html";
+            return;
+        }
+
+        console.log("Updating profile...");
+
+        const formData = new FormData();
+        formData.append("username", document.getElementById("profileUsername")?.value || "");
+        formData.append("email", document.getElementById("profileEmail")?.value || "");
+        formData.append("bio", document.getElementById("profileBio")?.value || "");
+
+        const socialHandlesInput = document.getElementById("socialHandles");
+        if (socialHandlesInput && socialHandlesInput.value.trim()) {
+            try {
+                const socialHandles = JSON.parse(socialHandlesInput.value);
+                formData.append("socialHandles", JSON.stringify(socialHandles));
+            } catch (error) {
+                alert("Invalid social handles format. Please provide valid JSON.");
+                return;
+            }
+        }
+
+        // Check file inputs before accessing `.files[0]`
+        const profilePictureInput = document.getElementById("profilePicture");
+        const coverPhotoInput = document.getElementById("coverPhoto");
+        const portfolioInput = document.getElementById("portfolio");
+
+        if (profilePictureInput?.files.length) formData.append("profilePicture", profilePictureInput.files[0]);
+        if (coverPhotoInput?.files.length) formData.append("coverPhoto", coverPhotoInput.files[0]);
+        if (portfolioInput?.files.length) formData.append("portfolio", portfolioInput.files[0]);
+
+        try {
+            const response = await fetch("http://localhost:5000/api/user/profile", {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    localStorage.removeItem("token");
+                    window.location.href = "/auth.html";
+                    return;
+                }
+                throw new Error(`Profile update failed. Status: ${response.status}`);
+            }
+
+            alert("Profile updated successfully!");
+            location.reload();
+
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile. Please try again.");
+        }
+    });
+} else {
+    console.warn("⚠️ Profile form not found. Skipping form event listener attachment.");
+}
+
+// Accept Friend Request
+async function acceptFriendRequest(userId) {
+    try {
+        const response = await fetch("http://localhost:5000/api/user/accept-friend-request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ senderId: userId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error accepting friend request: ${response.status}`);
+        }
+
+        const data = await response.json();
+        alert(data.message);
+        location.reload(); // Reload to reflect changes
+    } catch (error) {
+        console.error("Error accepting friend request:", error);
+        alert("Failed to accept friend request. Please try again.");
+    }
+}
+
+    </script>
+</body>
+</html>

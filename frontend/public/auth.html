@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/Logo.png" type="image/png">
+    <title>StoryShare - Authentication</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+   
+</head>
+<body class="font-sans text-gray-800 bg-gray-50">
+
+               <!-- Navbar -->
+               <nav class="bg-gray-950 shadow-lg p-5 fixed top-0 left-0 w-full z-50 transition-all duration-300">
+                <div class="container mx-auto flex justify-between items-center">
+                    <!-- Logo -->
+                    <img src="../images/Logo.png" alt="StoryShare Logo" class="h-16 w-auto">
+        
+                    <!-- Desktop Navigation -->
+                    <ul class="hidden md:flex space-x-10 text-primaryColor font-medium tracking-wide">
+                        <li><a href="/index.html" class="nav-link hover:text-white transition">Home</a></li>
+                        <li><a href="/masterclasses.html" class="nav-link hover:text-white transition">Masterclass</a></li>
+                        <li><a href="/opportunity.html" class="nav-link hover:text-white transition">Opportunities</a></li>
+                        <li><a href="/community.html" class="nav-link hover:text-white transition">Community</a></li>
+                        <li><a href="/blog.html" class="nav-link hover:text-white transition">Blog</a></li>
+                    </ul>
+        
+                    <!-- Account Options (Desktop) -->
+                    <div id="accountDropdown" class="hidden md:flex relative">
+                        <button id="accountBtn" class="text-white hover:text-gray-300 flex items-center transition focus:outline-none">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                        </button>
+                        <!-- Dropdown (Desktop) -->
+                        <div id="dropdownMenu" class="absolute right-0 mt-3 bg-white shadow-lg rounded-lg w-44 border border-gray-200 hidden">
+                            <!-- Dynamic Content Based on Authentication State -->
+                            <div id="authOptions">
+                                <!-- Options for logged-out users -->
+                                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                                </a>
+                                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleSidebar()" class="md:hidden text-white focus:outline-none transition duration-300">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+        
+                <!-- Mobile Sidebar -->
+                <div id="sidebar" class="fixed inset-0 bg-gradient-to-b from-gray-900 to-gray-800 p-6 z-50 hidden flex flex-col space-y-6 shadow-2xl transform -translate-x-full transition-transform duration-300 rounded-r-xl">
+                    <button onclick="toggleSidebar()" class="text-white self-end">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                    <ul class="flex flex-col space-y-6 mt-6 text-gray-200 font-medium">
+                        <li><a href="/index.html" class="sidebar-link hover:text-blue-400 transition">Home</a></li>
+                        <li><a href="/masterclasses.html" class="sidebar-link hover:text-blue-400 transition">Masterclass</a></li>
+                        <li><a href="/opportunity.html" class="sidebar-link hover:text-blue-400 transition">Opportunities</a></li>
+                        <li><a href="/community.html" class="sidebar-link hover:text-blue-400 transition">Community</a></li>
+                        <li><a href="/blog.html" class="sidebar-link hover:text-blue-400 transition">Blog</a></li>
+                    </ul>
+        
+                    <!-- Account Options (Mobile) -->
+                    <div class="border-t border-gray-700 pt-6">
+                        <p class="text-gray-400 uppercase text-sm mb-3">Account</p>
+                        <!-- Dynamic Content Based on Authentication State -->
+                        <div id="authOptionsMobile">
+                            <!-- Options for logged-out users -->
+                            <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                            </a>
+                            <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                                <i class="fas fa-user-plus mr-2"></i> Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+    
+    
+
+    <!-- Authentication Form -->
+<!-- Authentication Form -->
+<div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 px-6">
+    <div class="w-full max-w-md bg-white p-8 shadow-xl rounded-lg border border-gray-200">
+        <div id="messageBox" class="hidden text-center text-green-600 font-bold mb-4"></div>
+        <h2 id="formTitle" class="text-3xl font-extrabold text-center text-gray-800 mb-6">Sign In</h2>
+
+        <form id="authForm" class="space-y-5">
+            <div id="usernameField" class="hidden">
+                <label class="block text-gray-700 font-medium">Username</label>
+                <input type="text" id="username" class="w-full mt-2 px-4 py-3 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none transition" placeholder="Enter your username">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium">Email</label>
+                <input type="email" id="email" class="w-full mt-2 px-4 py-3 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none transition" placeholder="Enter your email" required>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium">Password</label>
+                <input type="password" id="password" class="w-full mt-2 px-4 py-3 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none transition" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" id="submitButton" class="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition">Sign In</button>
+        </form>
+
+        <p class="text-center text-gray-600 mt-6">
+            <span id="toggleText">Don't have an account?</span>
+            <button id="toggleForm" class="text-blue-500 font-medium hover:underline transition">Sign Up</button>
+        </p>
+    </div>
+</div>
+
+    <footer class="bg-gray-900 text-gray-400 py-6 mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 px-6 text-center md:text-left">
+            
+            <!-- Brand Name -->
+            <p class="text-xs font-normal text-gray-300">&copy; 2024 Filmmaker Community. All rights reserved.</p>
+    
+            <!-- Social Media Links -->
+            <div class="flex space-x-6">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-facebook-f text-lg"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-twitter text-lg"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-instagram text-lg"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-linkedin-in text-lg"></i>
+                </a>
+            </div>
+    
+            <!-- Additional Info -->
+            <p class="text-sm text-gray-500">Built with ❤️ by filmmakers, for filmmakers.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+ // Sidebar Toggle Function
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("-translate-x-full");
+    sidebar.classList.toggle("hidden");
+}
+
+document.getElementById("toggleSidebar")?.addEventListener("click", toggleSidebar);
+
+// Account Dropdown Toggle
+document.addEventListener("DOMContentLoaded", () => {
+    const accountBtn = document.getElementById("accountBtn");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    if (accountBtn && dropdownMenu) {
+        accountBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!accountBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add("hidden");
+            }
+        });
+    }
+});
+
+// Logout Functionality
+function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/auth.html";
+}
+
+// Add Logout Event Listeners
+document.getElementById("logoutDropdownBtn")?.addEventListener("click", handleLogout);
+document.getElementById("logoutSidebarBtn")?.addEventListener("click", handleLogout);
+
+// Update UI Based on Authentication Status
+document.addEventListener("DOMContentLoaded", function () {
+    updateAuthOptions(); // Update UI on load
+});
+
+function isLoggedIn() {
+    return localStorage.getItem("user") !== null;
+}
+
+function updateAuthOptions() {
+    const authOptions = document.getElementById("authOptions");
+    const authOptionsMobile = document.getElementById("authOptionsMobile");
+
+    if (isLoggedIn()) {
+        if (authOptions) {
+            authOptions.innerHTML = `
+                <a href="/profile.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutDropdownBtn" class="w-full text-left px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+        }
+
+        if (authOptionsMobile) {
+            authOptionsMobile.innerHTML = `
+                <a href="/profile.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutSidebarBtn" class="w-full text-left px-4 py-3 text-gray-200 hover:bg-red-700 rounded-lg font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+        }
+
+        document.getElementById("logoutDropdownBtn")?.addEventListener("click", handleLogout);
+        document.getElementById("logoutSidebarBtn")?.addEventListener("click", handleLogout);
+    } else {
+        if (authOptions) {
+            authOptions.innerHTML = `
+                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </a>
+                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </a>
+            `;
+        }
+
+        if (authOptionsMobile) {
+            authOptionsMobile.innerHTML = `
+                <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </a>
+                <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </a>
+            `;
+        }
+    }
+}
+
+// Authentication Form Logic
+document.addEventListener("DOMContentLoaded", () => {
+    const formTitle = document.getElementById("formTitle");
+    const authForm = document.getElementById("authForm");
+    const usernameField = document.getElementById("usernameField");
+    const toggleText = document.getElementById("toggleText");
+    const toggleFormBtn = document.getElementById("toggleForm");
+    const submitButton = document.getElementById("submitButton");
+    const messageBox = document.getElementById("messageBox");
+
+    let isSignUp = false;
+
+    // Toggle Between Sign-In & Sign-Up
+    toggleFormBtn.addEventListener("click", () => {
+        isSignUp = !isSignUp;
+        formTitle.textContent = isSignUp ? "Sign Up" : "Sign In";
+        usernameField.classList.toggle("hidden", !isSignUp);
+        submitButton.textContent = isSignUp ? "Sign Up" : "Sign In";
+        toggleText.textContent = isSignUp ? "Already have an account?" : "Don't have an account?";
+        toggleFormBtn.textContent = isSignUp ? "Sign In" : "Sign Up";
+    });
+
+    // Form Submission
+    authForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const username = isSignUp ? document.getElementById("username").value : null;
+
+        const url = isSignUp ? "/api/auth/signup" : "/api/auth/login";
+        const requestData = isSignUp ? { email, password, username } : { email, password };
+
+        try {
+            const response = await fetch(`http://localhost:5000${url}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData),
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned an invalid response.");
+            }
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || "Authentication failed.");
+
+            console.log("✅ User logged in:", data.user);
+
+            // Ensure user data is valid before storing it
+            if (data.user && data.user._id && data.user.username) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify({
+                id: data.user._id, 
+                username: data.user.username,
+                email: data.user.email,
+                profilePic: data.user.profilePic || "/assets/default-avatar.png",
+                friends: data.user.friends || [],
+                friendRequests: data.user.friendRequests || [],
+                token: data.token // ✅ Ensure token is included here
+}));
+
+                // Confirm user data is stored correctly
+                setTimeout(() => {
+                    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+                    if (storedUser && storedUser.id && storedUser.username) {
+                        console.log("🔍 Stored User Data:", storedUser);
+                        messageBox.textContent = isSignUp ? "Welcome to StoryShare!" : "Welcome back!";
+                        messageBox.classList.remove("hidden");
+
+                        setTimeout(() => window.location.href = "/community.html", 1500);
+                    } else {
+                        console.error("❌ Failed to store user data.");
+                    }
+                }, 300);
+            } else {
+                console.error("❌ Invalid user data received:", data.user);
+            }
+        } catch (error) {
+            console.error("❌ Authentication error:", error);
+            alert(error.message);
+        }
+    });
+
+    updateAuthOptions();
+});
+
+// ✅ Logout Functionality
+function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/auth.html";
+}
+
+// ✅ Check Login Status
+function isLoggedIn() {
+    try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        return user && user.id && user.username;
+    } catch (error) {
+        console.error("❌ Error reading user data from localStorage:", error);
+        return false;
+    }
+}
+
+// ✅ Update UI Based on Authentication
+function updateAuthOptions() {
+    const authOptions = document.getElementById("authOptions");
+    const authOptionsMobile = document.getElementById("authOptionsMobile");
+
+    if (isLoggedIn()) {
+        if (authOptions) {
+            authOptions.innerHTML = `
+                <a href="/profile.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutDropdownBtn" class="w-full text-left px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+        }
+
+        if (authOptionsMobile) {
+            authOptionsMobile.innerHTML = `
+                <a href="/profile.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutSidebarBtn" class="w-full text-left px-4 py-3 text-gray-200 hover:bg-red-700 rounded-lg font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+        }
+
+        document.getElementById("logoutDropdownBtn")?.addEventListener("click", handleLogout);
+        document.getElementById("logoutSidebarBtn")?.addEventListener("click", handleLogout);
+    }
+}
+
+
+
+
+
+        
+    </script>
+</body>
+</html>
