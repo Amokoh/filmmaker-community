@@ -1,0 +1,11 @@
+[0;1;32m●[0m filmmaker-community.service - Filmmaker Community Node.js App
+     Loaded: loaded (]8;;file://srv762342/etc/systemd/system/filmmaker-community.service/etc/systemd/system/filmmaker-community.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Sat 2025-03-22 22:37:31 UTC; 39ms ago
+   Main PID: 37713 (9)
+      Tasks: 1 (limit: 4654)
+     Memory: 1.0M (peak: 1.2M)
+        CPU: 6ms
+     CGroup: /system.slice/filmmaker-community.service
+             └─[0;38;5;245m37713 /usr/lib/systemd/systemd-executor --deserialize 68 --log-level info --log-target journal-or-kmsg[0m
+
+Mar 22 22:37:31 srv762342 systemd[1]: Started filmmaker-community.service - Filmmaker Community Node.js App.

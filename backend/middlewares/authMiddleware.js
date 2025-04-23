@@ -1,54 +1,61 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// ✅ Middleware to protect routes and attach full user data
 const protect = async (req, res, next) => {
-    try {
-        console.log("🔍 Authorization Header:", req.headers.authorization); // Debug log
+  const authHeader = req.headers.authorization;
 
-        const token = req.headers.authorization?.split(" ")[1];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.warn("❌ Missing or malformed auth header");
+    return res.status(401).json({ message: "Not authorized: Token missing or malformed" });
+  }
 
-        if (!token) {
-            return res.status(401).json({ message: "No token, authorization denied" });
-        }
+  const token = authHeader.split(" ")[1];
 
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
-        } catch (err) {
-            if (err.name === "TokenExpiredError") {
-                return res.status(401).json({ message: "Session expired. Please log in again." });
-            }
-            return res.status(401).json({ message: "Invalid token." });
-        }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ JWT decoded:", decoded);
 
-        req.user = await User.findById(decoded.id).select("-password");
-        if (!req.user) {
-            return res.status(401).json({ message: "User not found" });
-        }
-
-        console.log("✅ Authenticated User:", req.user); // Debug log
-        next();
-    } catch (error) {
-        console.error("🚨 Auth Middleware Error:", error);
-        res.status(401).json({ message: "Authorization error" });
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      console.warn("❌ User not found for ID:", decoded.userId);
+      return res.status(401).json({ message: "User not found" });
     }
+
+    // ✅ Unified format: always include userId
+    req.user = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    };
+
+    next();
+  } catch (error) {
+    console.error("❌ JWT verification failed:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };
 
+// ✅ Lightweight version (if needed separately)
+const authenticateUser = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-module.exports = function authenticateUser(req, res, next) {
-    const token = req.headers.authorization?.split(" ")[1];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized: Token missing" });
+  }
 
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized: No token provided." });
-    }
+  const token = authHeader.split(" ")[1];
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return res.status(401).json({ message: "Invalid or expired token." });
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { userId: decoded.userId };
+    next();
+  } catch (error) {
+    console.error("❌ JWT decode failed:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };
 
-module.exports = { protect }; // ✅ Must be included
+module.exports = { protect, authenticateUser };
+

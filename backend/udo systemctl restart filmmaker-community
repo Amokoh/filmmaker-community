@@ -1,0 +1,12 @@
+[0;1;31m×[0m filmmaker-community.service - Filmmaker Community Node.js App
+     Loaded: loaded (]8;;file://srv762342/etc/systemd/system/filmmaker-community.service/etc/systemd/system/filmmaker-community.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Sat 2025-03-22 22:28:40 UTC; 6min ago
+   Duration: 117ms
+    Process: 37678 ExecStart=/usr/bin/node /var/www/filmmaker-community/backend/app.js [0;1;31m(code=exited, status=1/FAILURE)[0m
+   Main PID: 37678 (code=exited, status=1/FAILURE)
+        CPU: 110ms
+
+Mar 22 22:28:40 srv762342 systemd[1]: filmmaker-community.service: Scheduled restart job, restart counter is at 5.
+Mar 22 22:28:40 srv762342 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mfilmmaker-community.service: Start request repeated too quickly.[0m
+Mar 22 22:28:40 srv762342 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mfilmmaker-community.service: Failed with result 'exit-code'.[0m
+Mar 22 22:28:40 srv762342 systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start filmmaker-community.service - Filmmaker Community Node.js App.[0m

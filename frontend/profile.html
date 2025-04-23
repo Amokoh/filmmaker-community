@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryShare</title>
+    <link rel="icon" href="../images/Logo.png" type="image/png">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+   
+</head>
+<body class="font-sans text-gray-800 flex flex-col min-h-screen"">
+    <!-- Navbar -->
+        <!-- Navbar -->
+        <nav class="bg-gray-950 shadow-lg p-5 fixed top-0 left-0 w-full z-50 transition-all duration-300">
+            <div class="container mx-auto flex justify-between items-center">
+                <!-- Logo -->
+                <img src="../images/Logo.png" alt="StoryShare Logo" class="h-16 w-auto">
+    
+                <!-- Desktop Navigation -->
+                <ul class="hidden md:flex space-x-10 text-primaryColor font-medium tracking-wide">
+                    <li><a href="/index.html" class="nav-link hover:text-white transition">Home</a></li>
+                    <li><a href="/masterclasses.html" class="nav-link hover:text-white transition">Masterclass</a></li>
+                    <li><a href="/opportunity.html" class="nav-link hover:text-white transition">Opportunities</a></li>
+                    <li><a href="/community.html" class="nav-link hover:text-white transition">Community</a></li>
+                    <li><a href="/blog.html" class="nav-link hover:text-white transition">Blog</a></li>
+                </ul>
+    
+                <!-- Account Options (Desktop) -->
+                <div id="accountDropdown" class="hidden md:flex relative">
+                    <button id="accountBtn" class="text-white hover:text-gray-300 flex items-center transition focus:outline-none">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                    <!-- Dropdown (Desktop) -->
+                    <div id="dropdownMenu" class="absolute right-0 mt-3 bg-white shadow-lg rounded-lg w-44 border border-gray-200 hidden">
+                        <!-- Dynamic Content Based on Authentication State -->
+                        <div id="authOptions">
+                            <!-- Options for logged-out users -->
+                            <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                            </a>
+                            <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                                <i class="fas fa-user-plus mr-2"></i> Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleSidebar()" class="md:hidden text-white focus:outline-none transition duration-300">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+    
+            <!-- Mobile Sidebar -->
+            <div id="sidebar" class="fixed inset-0 bg-gradient-to-b from-gray-900 to-gray-800 p-6 z-50 hidden flex flex-col space-y-6 shadow-2xl transform -translate-x-full transition-transform duration-300 rounded-r-xl">
+                <button onclick="toggleSidebar()" class="text-white self-end">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+                <ul class="flex flex-col space-y-6 mt-6 text-gray-200 font-medium">
+                    <li><a href="/index.html" class="sidebar-link hover:text-blue-400 transition">Home</a></li>
+                    <li><a href="/masterclasses.html" class="sidebar-link hover:text-blue-400 transition">Masterclass</a></li>
+                    <li><a href="/opportunity.html" class="sidebar-link hover:text-blue-400 transition">Opportunities</a></li>
+                    <li><a href="/community.html" class="sidebar-link hover:text-blue-400 transition">Community</a></li>
+                    <li><a href="/blog.html" class="sidebar-link hover:text-blue-400 transition">Blog</a></li>
+                </ul>
+    
+                <!-- Account Options (Mobile) -->
+                <div class="border-t border-gray-700 pt-6">
+                    <p class="text-gray-400 uppercase text-sm mb-3">Account</p>
+                    <!-- Dynamic Content Based on Authentication State -->
+                    <div id="authOptionsMobile">
+                        <!-- Options for logged-out users -->
+                        <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                        </a>
+                        <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+   <div class="min-h-screen bg-gray-50 py-16 px-6 flex items-center justify-center">
+  <div class=" max-w-4xl bg-white shadow-2xl rounded-2xl mt-20 p-8  md:p-12">
+
+   <!-- Top Section: Profile Pic, Username & Bio -->
+<div class="flex flex-col items-center space-y-6 mb-12">
+
+  <!-- Profile Picture with Overlay -->
+  <div class="relative group w-16 h-16">
+    <img id="previewProfilePic"
+         src="/assets/default-avatar.png"
+         alt="Profile Picture"
+         class="w-full h-full object-cover rounded-full border-2 border-white shadow-md transition duration-300 group-hover:brightness-90" />
+    
+    <!-- Upload Icon Overlay -->
+    <label for="profilePicture"
+           class="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-md cursor-pointer transition-transform hover:scale-105">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="h-4 w-4 text-blue-600"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15.232 5.232l3.536 3.536M9 13h3l9-9a1.414 1.414 0 00-2-2l-9 9v3zM16 21H4a1 1 0 01-1-1V8a1 1 0 011-1h9" />
+      </svg>
+    </label>
+    <input type="file" id="profilePicture" class="hidden" accept="image/*" />
+  </div>
+
+  <!-- Username Input -->
+  <input type="text"
+         id="profileUsername"
+         placeholder="Your username"
+         class="text-lg font-semibold text-gray-800  focus:border-blue-500 focus:outline-none px-4 py-1 transition w-64 text-center" />
+
+  <!-- Bio Textarea -->
+  <textarea id="profileBio"
+            rows="5"
+            class="w-full max-w-xl text-sm text-gray-700 text-center border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-300 transition resize-none"
+            placeholder="Write a short bio about yourself..."></textarea>
+</div>
+
+
+    <!-- Form Fields Section -->
+    <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 px-10 gap-6">
+      <!-- Left Side -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="profileEmail"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                 placeholder="Your email">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+          <select id="occupation"
+                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">Select your occupation</option>
+            <option value="Actor">Actor</option>
+            <option value="Director">Director</option>
+            <option value="Producer">Producer</option>
+            <option value="Singer">Singer</option>
+            <option value="Special Effects Artist">Special Effects Artist</option>
+            <option value="Writer">Writer</option>
+            <option value="Director of Photography">Director of Photography</option>
+            <option value="Choreographer">Choreographer</option>
+            <option value="Stylist and Makeup Artist">Stylist and Makeup Artist</option>
+            <option value="Set Designer">Set Designer</option>
+            <option value="Photographer">Photographer</option>
+            <option value="Videographer">Videographer</option>
+            <option value="Concept artist">Concept artist</option>
+            <option value="Sound engineer">Sound engineer</option>
+            <option value="Sound designer">Sound designer</option>
+            <option value="Animator">Animator</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Social Media Links</label>
+          <input type="text" id="socialHandles"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                 placeholder='{"twitter": "https://twitter.com/yourhandle"}'>
+        </div>
+      </div>
+
+      <!-- Right Side -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Cover Photo</label>
+          <input type="file" id="coverPhoto"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                 accept="image/*">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Portfolio (PDF)</label>
+          <input type="file" id="portfolio"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                 accept="application/pdf">
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="col-span-1 md:col-span-2 mt-8">
+        <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+          💾 Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+  
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-6 mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 px-6 text-center md:text-left">
+            <!-- Brand Name -->
+            <p class="text-xs font-normal text-gray-300">&copy; 2024 Filmmaker Community. All rights reserved.</p>
+
+            <!-- Social Media Links -->
+            <div class="flex space-x-6">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-facebook-f text-lg"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-twitter text-lg"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-instagram text-lg"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300">
+                    <i class="fab fa-linkedin-in text-lg"></i>
+                </a>
+            </div>
+
+            <!-- Additional Info -->
+            <p class="text-sm text-gray-500">Built with ❤️ by filmmakers, for filmmakers.</p>
+        </div>
+    </footer>
+
+    <script>
+              // Check if the user is logged in
+    function isLoggedIn() {
+        return localStorage.getItem("token") !== null;
+    }
+
+    // Update the account dropdown based on authentication state
+    function updateAuthOptions() {
+        const authOptions = document.getElementById("authOptions");
+        const authOptionsMobile = document.getElementById("authOptionsMobile");
+
+        if (isLoggedIn()) {
+            // User is logged in
+            authOptions.innerHTML = `
+                <a href="/profile.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutDropdownBtn" class="w-full text-left px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+
+            authOptionsMobile.innerHTML = `
+                <a href="/profile.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </a>
+                <button id="logoutSidebarBtn" class="w-full text-left px-4 py-3 text-gray-200 hover:bg-red-700 rounded-lg font-medium transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            `;
+        } else {
+            // User is not logged in
+            authOptions.innerHTML = `
+                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </a>
+                <a href="/auth.html" class="block px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </a>
+            `;
+  authOptionsMobile.innerHTML = `
+                <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </a>
+                <a href="/auth.html" class="block px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg font-medium transition">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </a>
+            `;
+        }
+    }
+
+    // Logout functionality
+    function handleLogout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/auth.html";
+    }
+
+    
+
+    // Initialize the page
+    document.addEventListener("DOMContentLoaded", () => {
+        const accountBtn = document.getElementById("accountBtn");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        // Update the account dropdown options
+        updateAuthOptions();
+
+        // Account Dropdown Toggle
+        if (accountBtn && dropdownMenu) {
+            accountBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                dropdownMenu.classList.toggle("hidden");
+            });
+  document.addEventListener("click", (event) => {
+                if (!accountBtn.contains(event.target)) {
+                    dropdownMenu.classList.add("hidden");
+                }
+            });
+        }
+
+        // Logout functionality
+        document.addEventListener("click", (event) => {
+            if (event.target.id === "logoutDropdownBtn" || event.target.id === "logoutSidebarBtn") {
+                handleLogout();
+            }
+        });
+
+        // Simulate sign-up or sign-in (for demonstration purposes)
+        const authForm = document.getElementById("authForm");
+        if (authForm) {
+            authForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                simulateAuth(); // Simulate authentication
+            });
+        }
+    });
+
+    // Toggle sidebar function
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("-translate-x-full");
+        sidebar.classList.toggle("hidden");
+    }
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const API_URL = "https://storysharestudio.com/api/user/profile";
+  const token = localStorage.getItem("token");
+
+  if (!token || token === "undefined") {
+    alert("Unauthorized. Please log in.");
+    window.location.href = "/auth.html";
+    return;
+  }
+
+  console.log("🔐 Stored token:", token);
+
+  try {
+    const res = await fetch(API_URL, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.warn("⚠️ Failed to load profile:", errorData);
+      throw new Error(errorData.message || "Failed to fetch profile");
+    }
+
+    const user = await res.json();
+
+    // ✅ Safely populate fields
+    const profilePic = document.getElementById("previewProfilePic");
+    if (profilePic) profilePic.src = user.profilePicture || "/uploads/default-profile.jpg";
+
+    const coverPhoto = document.getElementById("cover-photo");
+    if (coverPhoto) coverPhoto.src = user.coverPhoto || "/uploads/default-cover.jpg";
+
+    const usernameField = document.getElementById("profileUsername");
+    if (usernameField) usernameField.value = user.username || "";
+
+    const emailField = document.getElementById("profileEmail");
+    if (emailField) emailField.value = user.email || "";
+
+    const bioField = document.getElementById("profileBio");
+    if (bioField) bioField.value = user.bio || "";
+
+    
+  const socialHandlesField = document.getElementById("socialHandles");
+    if (socialHandlesField) {
+      socialHandlesField.value = user.socialHandles
+        ? JSON.stringify(user.socialHandles, null, 2)
+        : "";
+    }
+
+    const loginStatus = document.getElementById("loginStatus");
+    if (loginStatus) {
+      loginStatus.textContent = `✅ Logged in as ${user.username} (${user.email})`;
+    }
+
+  } catch (err) {
+    console.error("❌ Profile fetch error:", err.message);
+    alert(`Session expired: ${err.message}`);
+    localStorage.removeItem("token");
+    window.location.href = "/auth.html";
+  }
+});
+
+
+ 
+
+// ✅ Handle profile updates
+const profileForm = document.getElementById("profileForm");
+
+if (profileForm) {
+  profileForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Session expired. Please log in.");
+      window.location.href = "/auth.html";
+      return;
+    }
+
+    const formData = new FormData();
+
+    const usernameInput = document.getElementById("profileUsername");
+    if (usernameInput) formData.append("username", usernameInput.value || "");
+
+    const emailInput = document.getElementById("profileEmail");
+    if (emailInput) formData.append("email", emailInput.value || "");
+
+    const bioInput = document.getElementById("profileBio");
+    if (bioInput) formData.append("bio", bioInput.value || "");
+
+    const socialHandlesInput = document.getElementById("socialHandles");
+    if (socialHandlesInput && socialHandlesInput.value.trim()) {
+      try {
+        const parsed = JSON.parse(socialHandlesInput.value);
+        formData.append("socialHandles", JSON.stringify(parsed));
+      } catch {
+        alert("Invalid social handles format. Please provide valid JSON.");
+        return;
+      }
+    }
+
+    const profilePicInput = document.getElementById("profilePicture");
+    if (profilePicInput?.files.length) {
+      formData.append("profilePicture", profilePicInput.files[0]);
+    }
+
+    const coverPhotoInput = document.getElementById("coverPhoto");
+    if (coverPhotoInput?.files.length) {
+      formData.append("coverPhoto", coverPhotoInput.files[0]);
+    }
+
+    const portfolioInput = document.getElementById("portfolio");
+    if (portfolioInput?.files.length) {
+      formData.append("portfolio", portfolioInput.files[0]);
+    }
+
+    try {
+      const res = await fetch("https://storysharestudio.com/api/user/profile", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          const errorData = await res.json();
+          console.warn("⚠️ Unauthorized:", errorData);
+          alert(`Session expired: ${errorData.message || "Unauthorized"}`);
+          localStorage.removeItem("token");
+          window.location.href = "/auth.html";
+          return;
+        }
+
+        const errorData = await res.json();
+        throw new Error(`Profile update failed: ${errorData.message || "Unknown error"}`);
+      }
+
+      const result = await res.json();
+
+      // ✅ Optional: refresh token if returned
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+        console.log("🔄 Token refreshed");
+      }
+
+      alert("✅ Profile updated!");
+      location.reload();
+
+    } catch (err) {
+      console.error("❌ Update error:", err);
+      alert(`Failed to update profile. ${err.message}`);
+    }
+  });
+}
+ 
+    
+    </script>
+</body>
+</html>

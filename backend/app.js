@@ -1,69 +1,93 @@
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const { Server } = require("socket.io");
-const session = require('express-session');
-const passport = require('passport');
-const mongoose = require('mongoose');
-const path = require('path');
-const bodyParser = require('body-parser');
+const express = require("express");
+const session = require("express-session");
+const passport = require("passport");
+const http = require("http");
+const path = require("path");
+const mongoose = require("mongoose");
+require("dotenv").config();
 const cors = require("cors");
+const socketIO = require("socket.io");
 const jwt = require("jsonwebtoken");
 
-// ✅ Define PORT
-const PORT = process.env.PORT || 5000;
+const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/filmmakerDB";
 
-// ✅ Ensure required environment variables are set
-if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
-    console.error("❌ Missing required environment variables (.env file)");
+mongoose.connect(mongoURI)
+  .then(() => {
+    console.log(`✅ Connected to MongoDB at ${mongoURI}`);
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
     process.exit(1);
-}
+  });
 
-// ✅ Initialize Express App
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:5000", credentials: true } });
+const io = socketIO(server, {
+  cors: {
+    origin: "https://storysharestudio.com",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
-// ✅ MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {})
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch((err) => {
-        console.error('❌ MongoDB connection error:', err);
-        process.exit(1);
-    });
+// ✅ Store connected users for real-time updates
+const connectedUsers = new Map();
 
-// ✅ Middleware
-app.use(cors({ origin: "http://localhost:5000", credentials: true }));
+// ✅ Handle socket.io connections
+io.on("connection", (socket) => {
+  console.log("📡 A user connected:", socket.id);
+
+  const token = socket.handshake.auth?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+
+      connectedUsers.set(userId, socket.id);
+      console.log(`🔐 Authenticated socket for user: ${userId}`);
+
+      socket.on("disconnect", () => {
+        connectedUsers.delete(userId);
+        console.log("❌ User disconnected:", socket.id);
+      });
+
+    } catch (err) {
+      console.warn("⚠️ Socket authentication failed:", err.message);
+    }
+  } else {
+    console.warn("⚠️ No token provided via socket.auth");
+  }
+});
+
+// ✅ Middlewares
+app.use(cors({
+  origin: "https://storysharestudio.com",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// ✅ Serve Static Files from Frontend
-const frontendPath = path.resolve(__dirname, "../frontend/public");
-app.use(express.static(frontendPath));
-
-// ✅ Serve uploaded files
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_secret_key',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
+  secret: process.env.SESSION_SECRET || "your_secret_key",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Import Routes
+// ✅ Routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoutes");
 const groupChatRoutes = require("./routes/groupChatRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-const friendRoutes = require("./routes/friendRoutes");
+const friendRoutes = require("./routes/friendRoutes")(io, connectedUsers); // ✅ corrected
 
-// ✅ Use Routes
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/posts", postRoutes);
@@ -72,34 +96,34 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/friends", friendRoutes);
 
-// ✅ Serve Static HTML Pages from Frontend
-const pages = ["index", "masterclasses", "opportunity", "blog", "community", "auth", "chat", "profile"];
-pages.forEach(page => {
-    app.get(`/${page}`, (req, res) => {
-        const filePath = path.join(frontendPath, `${page}.html`);
-        console.log(`Serving: ${filePath}`);
+// ✅ Serve frontend and static files
+const frontendPath = path.join(__dirname, "../frontend");
+app.use(express.static(frontendPath, { extensions: ["html"] }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-        res.sendFile(filePath, (err) => {
-            if (err) {
-                console.error(`❌ Error serving ${page}.html:`, err);
-                res.status(500).send("Error loading page.");
-            }
-        });
-    });
+["index", "masterclasses", "opportunity", "blog", "community", "auth"].forEach((page) => {
+  app.get(`/${page}`, (req, res) => {
+    res.sendFile(path.join(frontendPath, `${page}.html`));
+  });
 });
-
-// ✅ Root Route (Serve index.html)
 app.get("/", (req, res) => {
-    const filePath = path.join(frontendPath, "index.html");
-    console.log(`Serving: ${filePath}`);
-
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            console.error("❌ Error serving index.html:", err);
-            res.status(500).send("Error loading homepage.");
-        }
-    });
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// ✅ Start Server
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// ✅ Error Handling
+app.use((req, res) => {
+  res.status(404).json({ error: "❌ Route not found" });
+});
+app.use((err, req, res, next) => {
+  console.error("❌ Server error:", err);
+  res.status(500).json({ error: "⚠️ Internal Server Error" });
+});
+
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
+});
+
+// ✅ Export for use in routes
+module.exports = { app, server, io, connectedUsers };
+

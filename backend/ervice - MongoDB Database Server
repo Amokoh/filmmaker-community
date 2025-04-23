@@ -1,0 +1,14 @@
+[0;1;31m×[0m mongod.service - MongoDB Database Server
+     Loaded: loaded (]8;;file://srv762342/usr/lib/systemd/system/mongod.service/usr/lib/systemd/system/mongod.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Mon 2025-03-24 01:00:20 UTC; 48s ago
+   Duration: 40ms
+       Docs: ]8;;https://docs.mongodb.org/manualhttps://docs.mongodb.org/manual]8;;
+    Process: 201603 ExecStart=/usr/bin/mongod --config /etc/mongod.conf [0;1;31m(code=exited, status=1/FAILURE)[0m
+   Main PID: 201603 (code=exited, status=1/FAILURE)
+        CPU: 33ms
+
+Mar 24 01:00:20 srv762342 systemd[1]: Started mongod.service - MongoDB Database Server.
+Mar 24 01:00:20 srv762342 mongod[201603]: {"t":{"$date":"2025-03-24T01:00:20.947Z"},"s":"I",  "c":"CONTROL",  "id":7484500, "ctx":"main","msg":"Environment variable MONGODB_CONFIG_OVERRIDE_NOFORK == 1, overriding \"processManagement.fork\" to false"}
+Mar 24 01:00:20 srv762342 mongod[201603]: {"t":{"$date":"2025-03-24T01:00:20.947Z"},"s":"F",  "c":"CONTROL",  "id":20574,   "ctx":"main","msg":"Error during global initialization","attr":{"error":{"code":38,"codeName":"FileNotOpen","errmsg":"Can't initialize rotatable log file :: caused by :: Failed to open /var/log/mongodb/mongod.log"}}}
+Mar 24 01:00:20 srv762342 systemd[1]: [0;1;39m[0;1;31m[0;1;39mmongod.service: Main process exited, code=exited, status=1/FAILURE[0m
+Mar 24 01:00:20 srv762342 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mmongod.service: Failed with result 'exit-code'.[0m

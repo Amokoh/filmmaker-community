@@ -1,33 +1,37 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User"); // ✅ Corrected path
-const { protect } = require("../middlewares/authMiddleware");
+const User = require("../models/User");
 
 const protect = async (req, res, next) => {
-    let token;
+  const authHeader = req.headers.authorization;
 
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-        try {
-            token = req.headers.authorization.split(" ")[1]; // Extract token
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
 
-            if (!token) {
-                return res.status(401).json({ message: "Not authorized, token missing" });
-            }
+  const token = authHeader.split(" ")[1];
 
-            const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
-            req.user = await User.findById(decoded.id).select("-password"); // Get user data
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            if (!req.user) {
-                return res.status(401).json({ message: "User not found, invalid token" });
-            }
-
-            next();
-        } catch (error) {
-            console.error("❌ JWT Verification Error:", error);
-            res.status(401).json({ message: "Not authorized, invalid token" });
-        }
-    } else {
-        res.status(401).json({ message: "Not authorized, no token provided" });
+    const user = await User.findById(decoded.id || decoded.userId).select("-password");
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
+
+    // ✅ Attach only required user data
+    req.user = {
+      userId: user._id, // ⚠️ renamed from _id to userId
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    };
+
+    next();
+  } catch (error) {
+    console.error("❌ JWT Error:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };
 
 module.exports = { protect };
+
